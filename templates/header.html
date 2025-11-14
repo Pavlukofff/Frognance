@@ -1,0 +1,20 @@
+<div class="container">
+    <header class="d-flex justify-content-center py-3">
+        <ul class="nav nav-pills">
+            <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
+            {% if not user.is_authenticated %}
+            <li class="nav-item"><a href="{% url "register" %}" class="nav-link">Register</a></li>
+            <li class="nav-item"><a href="{% url "login" %}" class="nav-link">Login</a></li>
+            {% else %}
+                <li class="nav-item , nav-link">Hi {{ user }}</li>
+                <li>
+                    <form action="{% url "logout" %}" method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="logout" class="nav-link">
+                    </form>
+                </li>
+            {% endif %}
+            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+        </ul>
+    </header>
+</div>
