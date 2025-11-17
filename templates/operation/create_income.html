@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container pt-5 d-flex justify-content-center">
+        <h1 class="justify-content-center">Добавление доходов</h1>
+        <form method="post" style="max-width: 500px" class="w-100 d-flex">
+            <div>
+                {% crispy form 'bootstrap5' %}
+                <button type="submit" class="bnt btn-primary">Добавить</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

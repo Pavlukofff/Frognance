@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
 
-from finance.views import home, login, register
+from finance.views import home, login, register, create_income_view, income_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +26,8 @@ urlpatterns = [
     path('register', register, name='register'),
     path('login', LoginView.as_view(), name='login'),
     path("logout", LogoutView.as_view(), name='logout'),
+    path('operation/income', create_income_view, name='create-income'),
+    path('operation/<int:income_id>', income_view, name='income-view'),
 ]
+
+

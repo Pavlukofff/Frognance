@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h1 class="justify-content-center">{{ income.title }}</h1>
+    <div class="container pt-5 d-flex justify-content-center">
+        <p>{{ income.content | linebreaks}}</p>
+    </div>
+{% endblock %}

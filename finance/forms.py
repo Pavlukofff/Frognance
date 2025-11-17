@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
+from finance.models import Income
+
 User = get_user_model()
 
 
@@ -28,3 +30,9 @@ class RegisterForm(forms.ModelForm):
             self.add_error('password2', 'Пароли не совпадают')
 
         return cleaned_data
+
+
+class IncomeForm(forms.ModelForm):
+    class Meta:
+        model = Income
+        fields = ['title', 'content']
