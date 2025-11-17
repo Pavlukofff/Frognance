@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
-from finance.models import Income
+from finance.models import Transaction, Category
 
 User = get_user_model()
 
@@ -32,7 +32,28 @@ class RegisterForm(forms.ModelForm):
         return cleaned_data
 
 
-class IncomeForm(forms.ModelForm):
+# class IncomeForm(forms.ModelForm):
+#     class Meta:
+#         model = Income
+#         fields = ['title', 'content']
+
+class TransactionForm(forms.ModelForm):
     class Meta:
-        model = Income
-        fields = ['title', 'content']
+        model = Transaction
+        fields = ['t_type', 'amount', 'category', 'description']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+        # категории только текущего пользователя
+        self.fields['category'].queryset = Category.objects.filter(user=user)
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'icon', 'is_income']
+
+
+
+

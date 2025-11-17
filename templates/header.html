@@ -15,7 +15,13 @@
                 </li>
             {% endif %}
         {% if user.is_authenticated %}
-            <li class="nav-item"><a href="{% url 'create-income' %}" class="nav-link">Добавить Доходы</a></li>
+            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link">Все операции</a></li>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <li class="nav-item"><a href="{% url 'add_transaction' %}" class="nav-link">Добавить Доход|Расход</a></li>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <li class="nav-item"><a href="{% url 'add_category' %}" class="nav-link">Новая категория</a></li>
         {% endif %}
         </ul>
     </header>

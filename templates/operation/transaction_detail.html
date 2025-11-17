@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Транзакция</h2>
+
+    <p>Тип: {{ transaction.get_t_type_display }}</p>
+    <p>Сумма: {{ transaction.amount }}</p>
+    <p>Категория: {{ transaction.category }}</p>
+    <p>Дата: {{ transaction.date }}</p>
+
+    {% if transaction.description %}
+        <p>Описание: {{ transaction.description }}</p>
+    {% endif %}
+
+{% endblock %}

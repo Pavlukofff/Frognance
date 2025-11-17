@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Баланс: {{ balance }}</h2>
+    <p>Доходы: {{ income }}</p>
+    <p>Расходы: {{ expense }}</p>
+
+    <a href="{% url 'add_transaction' %}">Добавить</a>
+
+    <ul>
+        {% for t in transactions %}
+            <li>{{ t.date }} — {{ t.get_t_type_display }}: {{ t.amount }} ({% if t.category %}
+                {{ t.category.name }}
+            {% else %}
+                Без категории
+            {% endif %})
+            </li>
+            <a href="{% url 'transaction_detail' t.pk %}">Подробнее</a>
+        {% endfor %}
+    </ul>
+{% endblock %}
