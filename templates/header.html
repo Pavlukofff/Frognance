@@ -3,8 +3,8 @@
         <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
             {% if not user.is_authenticated %}
-            <li class="nav-item"><a href="{% url "register" %}" class="nav-link">Register</a></li>
-            <li class="nav-item"><a href="{% url "login" %}" class="nav-link">Login</a></li>
+                <li class="nav-item"><a href="{% url "register" %}" class="nav-link">Register</a></li>
+                <li class="nav-item"><a href="{% url "login" %}" class="nav-link">Login</a></li>
             {% else %}
                 <li class="nav-item , nav-link">Hi {{ user }}</li>
                 <li>
@@ -14,15 +14,20 @@
                     </form>
                 </li>
             {% endif %}
-        {% if user.is_authenticated %}
-            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link">Все операции</a></li>
-        {% endif %}
-        {% if user.is_authenticated %}
-            <li class="nav-item"><a href="{% url 'add_transaction' %}" class="nav-link">Добавить Доход|Расход</a></li>
-        {% endif %}
-        {% if user.is_authenticated %}
-            <li class="nav-item"><a href="{% url 'add_category' %}" class="nav-link">Новая категория</a></li>
-        {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link">Все операции</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'add_transaction' %}" class="nav-link">Добавить Доход|Расход</a>
+                </li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'add_category' %}" class="nav-link">Новая категория</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'create_group' %}" class="nav-link">Создать группу</a></li>
+            {% endif %}
+            <li class="nav-item"><a href="{% url 'group_list' %}" class="nav-link">Мои группы</a></li>
         </ul>
     </header>
 </div>

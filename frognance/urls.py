@@ -19,7 +19,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
 
 from finance import views
-from finance.views import home, register
+from finance.views import home, register, export_operation_to_excel
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,6 +33,11 @@ urlpatterns = [
     path('operation/add/', views.add_transaction, name='add_transaction'),
     path('transaction/<int:pk>', views.transaction_detail, name='transaction_detail'),
     path('add-category/', views.add_category, name='add_category'),
+    path('export-operation/', export_operation_to_excel, name='export_operation'),
+    path('create-group/', views.create_group, name='create_group'),
+    path('join-group/<int:group_id>/', views.join_group, name='join_group'),
+    path('groups/', views.group_list, name='group_list'),
+    path('leave-group/<int:group_id>/', views.leave_group, name='leave_group'),
 ]
 
 

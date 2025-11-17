@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Мои группы</h1>
+    {% if memberships %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Название группы</th>
+                <th>Роль</th>
+                <th>Дата присоединения</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for membership in memberships %}
+                <tr>
+                    <td>{{ membership.group.name }}</td>
+                    <td>{{ membership.role }}</td>
+                    <td>{{ membership.joined_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <a href="{% url 'leave_group' membership.group.id %}" class="btn btn-danger btn-sm">Покинуть</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Вы не состоите ни в одной группе. <a href="{% url 'create_group' %}">Создать новую</a></p>
+    {% endif %}
+{% endblock %}

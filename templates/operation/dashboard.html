@@ -2,21 +2,66 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <h2>Баланс: {{ balance }}</h2>
-    <p>Доходы: {{ income }}</p>
-    <p>Расходы: {{ expense }}</p>
+    <h1>Отчеты</h1>
+    <h2>Личный счёт (обычный)</h2>
+    <p>Доходы: {{ personal_income }}</p>
+    <p>Расходы: {{ personal_expense }}</p>
+    <p>Баланс: {{ personal_balance }}</p>
 
     <a href="{% url 'add_transaction' %}">Добавить</a>
-
-    <ul>
-        {% for t in transactions %}
-            <li>{{ t.date }} — {{ t.get_t_type_display }}: {{ t.amount }} ({% if t.category %}
-                {{ t.category.name }}
-            {% else %}
-                Без категории
-            {% endif %})
-            </li>
-            <a href="{% url 'transaction_detail' t.pk %}">Подробнее</a>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Сумма</th>
+            <th>Категория</th>
+            <th>Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in personal_transactions %}
+            <tr>
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.t_type }}</td>
+                <td>{{ transaction.amount }}</td>
+                <td>{{ transaction.category.name|default:'' }}</td>
+                <td>{{ transaction.description }}</td>
+            </tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
+<a href="{% url 'export_operation' %}" class="btn btn-primary">Скачать отчёт в Excel</a>
+    {% if group %}
+        <h2>Групповой счёт ({{ group.name }})</h2>
+        <p>Доходы: {{ group_income }}</p>
+        <p>Расходы: {{ group_expense }}</p>
+        <p>Баланс: {{ group_balance }}</p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Сумма</th>
+                <th>Категория</th>
+                <th>Описание</th>
+                <th>Пользователь</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for transaction in group_transactions %}
+                <tr>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.t_type }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.category.name|default:'' }}</td>
+                    <td>{{ transaction.description }}</td>
+                    <td>{{ transaction.user.username }}</td>  <!-- Показываем, кто добавил (для группы) -->
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Вы не в группе — групповой счёт недоступен. <a href="{% url 'create_group' %}">Создать группу</a></p>
+    {% endif %}
 {% endblock %}

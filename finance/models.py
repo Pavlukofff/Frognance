@@ -30,6 +30,7 @@ class Category(models.Model):
         related_name='categories'
 
     )
+    group = models.ForeignKey('UserGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='categories')
     name = models.CharField(max_length=100)
     icon = models.CharField(max_length=30, blank=True)
     is_income = models.BooleanField(default=False)
@@ -45,6 +46,7 @@ class Transaction(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey('UserGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     t_type = models.CharField(max_length=7, choices=TYPE_CHOICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
@@ -53,6 +55,32 @@ class Transaction(models.Model):
 
     class Meta:
         db_table = 'Transaction'
+        indexes = [models.Index(fields=['user', 'group'])]
 
     def __str__(self):
         return f"{self.t_type}: {self.amount}"
+
+class UserGroup(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_groups'
+
+    def __str__(self):
+        return self.name
+
+class UserGroupMember(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE, related_name='members')
+    role = models.CharField(max_length=20, default='member', choices=[('admin', 'Admin'), ('member', 'Member')])
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_group_members'
+        unique_together = ['user', 'group']
+
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name} ({self.role})"
+
+
