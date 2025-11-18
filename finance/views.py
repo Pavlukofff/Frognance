@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Sum
@@ -187,7 +187,7 @@ def create_group(request):
         form = UserGroupForm(request.POST)
         if form.is_valid():
             group = form.save()
-            # Создатель — admin
+
             UserGroupMember.objects.create(user=request.user, group=group, role='admin')
             return redirect('dashboard')
     else:
