@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Sum
 from openpyxl import Workbook
 
-from finance.forms import RegisterForm, TransactionForm, CategoryForm, UserGroupForm
-from finance.models import Transaction, UserGroupMember, UserGroup
+from finance.forms import RegisterForm, TransactionForm, CategoryForm, UserGroupForm, InvitationForm, User
+from finance.models import Transaction, UserGroupMember, UserGroup, Invitation
 from finance.services import create_user
 
 
@@ -132,6 +132,7 @@ def add_category(request):
 
     return render(request, 'operation/add_category.html', {'form': form})
 
+
 @login_required
 def export_operation_to_excel(request):
     wb = Workbook()
@@ -181,6 +182,7 @@ def export_operation_to_excel(request):
 
     return response
 
+
 @login_required
 def create_group(request):
     if request.method == 'POST':
@@ -192,7 +194,8 @@ def create_group(request):
             return redirect('dashboard')
     else:
         form = UserGroupForm()
-    return render(request, 'operation/create_group.html', {'form': form})
+    return render(request, 'group/create_group.html', {'form': form})
+
 
 @login_required
 def join_group(request, group_id):
@@ -209,7 +212,7 @@ def group_list(request):
     context = {
         'memberships': memberships,
     }
-    return render(request, 'operation/group_list.html', context)
+    return render(request, 'group/group_list.html', context)
 
 
 @login_required
@@ -226,3 +229,50 @@ def leave_group(request, group_id):
     return redirect('group_list')
 
 
+@login_required
+def invite_to_group(request, group_id):
+    group = get_object_or_404(UserGroup, id=group_id)
+    membership = UserGroupMember.objects.filter(user=request.user, group=group, role='admin').first()
+    if not membership:
+        return HttpResponseForbidden("Только админ может приглашать.")
+
+    if request.method == 'POST':
+        form = InvitationForm(request.POST, group=group)
+        if form.is_valid():
+            to_username = form.cleaned_data['to_username']
+            to_user = User.objects.get(username=to_username)
+            Invitation.objects.create(from_user=request.user, to_user=to_user, group=group)
+            return redirect('group_list')
+    else:
+        form = InvitationForm(group=group)
+
+    return render(request, 'group/invite_to_group.html', {'form': form, 'group': group})
+
+
+@login_required
+def invitations_list(request):
+    invitations = Invitation.objects.filter(to_user=request.user, status='pending').order_by('-created_at')
+    return render(request, 'group/invitations_list.html', {'invitations': invitations})
+
+
+@login_required
+def accept_invitation(request, invitation_id):
+    invitation = get_object_or_404(Invitation, id=invitation_id, to_user=request.user)
+    if invitation.status != 'pending':
+        return HttpResponse("Приглашение уже обработано.")
+
+    UserGroupMember.objects.create(user=request.user, group=invitation.group, role='member')
+    invitation.status = 'accepted'
+    invitation.save()
+    return redirect('invitations_list')
+
+
+@login_required
+def reject_invitation(request, invitation_id):
+    invitation = get_object_or_404(Invitation, id=invitation_id, to_user=request.user)
+    if invitation.status != 'pending':
+        return HttpResponse("Приглашение уже обработано.")
+
+    invitation.status = 'rejected'
+    invitation.save()
+    return redirect('invitations_list')

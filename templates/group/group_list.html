@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои группы{% endblock %}
+
+{% block content %}
+    <h1>Мои группы</h1>
+    {% if memberships %}
+        <ul>
+            {% for membership in memberships %}
+                <li>
+                    Группа: {{ membership.group.name }}<br>
+                    Роль: {{ membership.role }}<br>
+                    Пользователь: {{ membership.user.username }}<br>
+                    Присоединился: {{ membership.joined_at }}<br>
+                    <a href="{% url 'leave_group' membership.group.id %}">Покинуть</a>
+                    {% if membership.role == 'admin' %}
+                        <a href="{% url 'invite_to_group' membership.group.id %}">Пригласить</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Вы не состоите в группах.</p>
+    {% endif %}
+    <a href="{% url 'create_group' %}">Создать новую группу</a>
+{% endblock %}

@@ -28,6 +28,9 @@
                 <li class="nav-item"><a href="{% url 'create_group' %}" class="nav-link">Создать группу</a></li>
             {% endif %}
             <li class="nav-item"><a href="{% url 'group_list' %}" class="nav-link">Мои группы</a></li>
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'invitations_list' %}" class="nav-link">Мои приглашения</a></li>
+            {% endif %}
         </ul>
     </header>
 </div>

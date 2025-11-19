@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Мои приглашения{% endblock %}
+{% block content %}
+    <h1>Мои приглашения</h1>
+    {% if invitations %}
+        <ul>
+            {% for inv in invitations %}
+                <li>Приглашение от {{ inv.from_user }} в {{ inv.group.name }} ({{ inv.created_at }})
+                    <a href="{% url 'accept_invitation' inv.id %}">Принять</a>
+                    <a href="{% url 'reject_invitation' inv.id %}">Отклонить</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет приглашений.</p>
+    {% endif %}
+{% endblock %}

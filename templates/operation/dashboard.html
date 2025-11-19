@@ -31,7 +31,7 @@
         {% endfor %}
         </tbody>
     </table>
-<a href="{% url 'export_operation' %}" class="btn btn-primary">Скачать отчёт в Excel</a>
+    <a href="{% url 'export_operation' %}" class="btn btn-primary">Скачать отчёт в Excel</a>
     {% if group %}
         <h2>Групповой счёт ({{ group.name }})</h2>
         <p>Доходы: {{ group_income }}</p>
@@ -56,7 +56,8 @@
                     <td>{{ transaction.amount }}</td>
                     <td>{{ transaction.category.name|default:'' }}</td>
                     <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.user.username }}</td> {# Показываем кто добавил #}
+                    <td>{{ transaction.user.username }}</td>
+                    {# Показываем кто добавил #}
                 </tr>
             {% endfor %}
             </tbody>

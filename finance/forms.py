@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
-from finance.models import Transaction, Category, UserGroup
+from finance.models import Transaction, Category, UserGroup, UserGroupMember, Invitation
 
 User = get_user_model()
 
@@ -56,13 +56,34 @@ class TransactionForm(forms.ModelForm):
 
         self.fields['group'].queryset = UserGroup.objects.filter(members__user=user)
 
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ['name', 'icon', 'is_income']
+
 
 class UserGroupForm(forms.ModelForm):
     class Meta:
         model = UserGroup
         fields = ['name']
 
+
+class InvitationForm(forms.Form):
+    to_username = forms.CharField(label='Имя пользователя для приглашения', max_length=150)
+
+    def __init__(self, *args, **kwargs):
+        self.group = kwargs.pop('group', None)  # группа от view
+        super().__init__(*args, **kwargs)
+
+    def clean_to_username(self):
+        username = self.cleaned_data['to_username']
+        try:
+            to_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise forms.ValidationError('Пользователь с таким именем не существует.')
+        if UserGroupMember.objects.filter(user=to_user, group=self.group).exists():
+            raise forms.ValidationError('Этот пользователь уже в группе.')
+        if Invitation.objects.filter(to_user=to_user, group=self.group, status='pending').exists():
+            raise forms.ValidationError('Приглашение уже отправлено.')
+        return username

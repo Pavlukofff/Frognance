@@ -38,6 +38,8 @@ urlpatterns = [
     path('join-group/<int:group_id>/', views.join_group, name='join_group'),
     path('groups/', views.group_list, name='group_list'),
     path('leave-group/<int:group_id>/', views.leave_group, name='leave_group'),
+    path('invite-group/<int:group_id>/', views.invite_to_group, name='invite_to_group'),
+    path('invitations/', views.invitations_list, name='invitations_list'),
+    path('accept-invitation/<int:invitation_id>/', views.accept_invitation, name='accept_invitation'),
+    path('reject-invitation/<int:invitation_id>/', views.reject_invitation, name='reject_invitation'),
 ]
-
-
