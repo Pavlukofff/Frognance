@@ -12,6 +12,7 @@
                     Роль: {{ membership.role }}<br>
                     Пользователь: {{ membership.user.username }}<br>
                     Присоединился: {{ membership.joined_at }}<br>
+                    <a href="{% url 'group_members' membership.group.id %}">Члены</a>
                     <a href="{% url 'leave_group' membership.group.id %}">Покинуть</a>
                     {% if membership.role == 'admin' %}
                         <a href="{% url 'invite_to_group' membership.group.id %}">Пригласить</a>

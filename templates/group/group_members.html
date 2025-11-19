@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Члены группы {{ group.name }}{% endblock %}
+
+{% block content %}
+    <h1>Члены группы {{ group.name }}</h1>
+    {% if members %}
+        <ul>
+            {% for member in members %}
+                <li>
+                    Пользователь: {{ member.user.username }}<br>
+                    Роль: {{ member.role }}<br>
+                    Присоединился: {{ member.joined_at }}<br>
+                    {% if is_admin and member.user != user and member.role != 'admin' %}
+                        <form method="post" action="{% url 'group_members' group.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="member_id" value="{{ member.id }}">
+                            <button type="submit">Удалить</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>В группе нет членов.</p>
+    {% endif %}
+    <a href="{% url 'group_list' %}">Назад к группам</a>
+{% endblock %}

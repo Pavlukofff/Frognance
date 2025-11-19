@@ -42,4 +42,5 @@ urlpatterns = [
     path('invitations/', views.invitations_list, name='invitations_list'),
     path('accept-invitation/<int:invitation_id>/', views.accept_invitation, name='accept_invitation'),
     path('reject-invitation/<int:invitation_id>/', views.reject_invitation, name='reject_invitation'),
+    path('group-members/<int:group_id>/', views.group_members, name='group_members'),
 ]

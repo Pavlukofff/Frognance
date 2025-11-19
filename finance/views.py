@@ -276,3 +276,31 @@ def reject_invitation(request, invitation_id):
     invitation.status = 'rejected'
     invitation.save()
     return redirect('invitations_list')
+
+@login_required
+def group_members(request, group_id):
+    group = get_object_or_404(UserGroup, id=group_id)
+    # проверка пользователя в группе
+    if not UserGroupMember.objects.filter(user=request.user, group=group).exists():
+        return HttpResponseForbidden("У вас нет доступа к этой группе.")
+
+    members = UserGroupMember.objects.filter(group=group).order_by('role', 'joined_at')
+    is_admin = UserGroupMember.objects.filter(user=request.user, group=group, role='admin').exists()
+
+    if request.method == 'POST':
+        if not is_admin:
+            return HttpResponseForbidden("Только админ может удалять членов.")
+        member_id = request.POST.get('member_id')
+        member_to_kick = get_object_or_404(UserGroupMember, id=member_id, group=group)
+        if member_to_kick.role == 'admin':
+            return HttpResponse("Нельзя удалить админа группы.")
+        if member_to_kick.user == request.user:
+            return HttpResponse("Нельзя удалить себя — используйте 'Покинуть'.")
+        member_to_kick.delete()
+        return redirect('group_members', group_id=group_id)
+
+    return render(request, 'group/group_members.html', {
+        'group': group,
+        'members': members,
+        'is_admin': is_admin
+    })
