@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Category, Transaction, UserGroup, UserGroupMember
 
 
-# Category
+# Category админка
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'group', 'is_income', 'icon')  # колонки в списке
@@ -10,7 +10,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('is_income', 'user')  # фильтры тип, пользователь
 
 
-# Transaction
+# Transaction админка
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('t_type', 'amount', 'user', 'group', 'category', 'date')  # колонки
@@ -18,14 +18,14 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('t_type', 'user', 'group')  # фильтры тип, пользователь, группа
 
 
-# UserGroup
+# UserGroup админка
 @admin.register(UserGroup)
 class UserGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')  # колонки
     search_fields = ('name',)  # поиск по имени
 
 
-# UserGroupMember
+# UserGroupMember админка
 @admin.register(UserGroupMember)
 class UserGroupMemberAdmin(admin.ModelAdmin):
     list_display = ('user', 'group', 'role', 'joined_at')  # колонки

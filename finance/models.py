@@ -5,24 +5,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-# class Expense(models.Model):
-#     title = models.CharField(max_length=255)
-#     content = models.TextField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     user = models.ForeignKey(User, on_delete=models.RESTRICT)
-#
-#     class Meta:
-#         db_table = 'Expense'
-
-# class Income(models.Model):
-#     title = models.CharField(max_length=255)
-#     content = models.TextField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     user = models.ForeignKey(User, on_delete=models.RESTRICT)
-#
-#     class Meta:
-#         db_table = 'Income'
-
 class Category(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -45,7 +27,7 @@ class Transaction(models.Model):
         ('expense', 'Расход'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     group = models.ForeignKey('UserGroup', on_delete=models.SET_NULL, null=True, blank=True,
                               related_name='transactions')
     t_type = models.CharField(max_length=7, choices=TYPE_CHOICES)

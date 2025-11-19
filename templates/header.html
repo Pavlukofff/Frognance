@@ -6,7 +6,13 @@
                 <li class="nav-item"><a href="{% url "register" %}" class="nav-link">Register</a></li>
                 <li class="nav-item"><a href="{% url "login" %}" class="nav-link">Login</a></li>
             {% else %}
-                <li class="nav-item , nav-link">Hi {{ user }}</li>
+                <li class="nav-item , nav-link">
+                    Hi {{ user.username }}
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="Avatar"
+                             style="width: 30px; height: 30px; border-radius: 50%;">
+                    {% endif %}
+                </li>
                 <li>
                     <form action="{% url "logout" %}" method="post">
                         {% csrf_token %}
@@ -30,6 +36,12 @@
             <li class="nav-item"><a href="{% url 'group_list' %}" class="nav-link">Мои группы</a></li>
             {% if user.is_authenticated %}
                 <li class="nav-item"><a href="{% url 'invitations_list' %}" class="nav-link">Мои приглашения</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'edit_profile' %}" class="nav-link">Профиль</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'income_list' %}" class="nav-link">Список доходов</a></li>
             {% endif %}
         </ul>
     </header>

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block content %}
+    <h1>Редактировать профиль</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+    {% if request.user.avatar %}
+        <img src="{{ request.user.avatar.url }}" alt="Avatar" style="width: 100px; height: 100px;">
+    {% endif %}
+{% endblock %}

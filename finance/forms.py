@@ -1,45 +1,15 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
 
 from finance.models import Transaction, Category, UserGroup, UserGroupMember, Invitation
 
 User = get_user_model()
 
 
-class RegisterForm(forms.ModelForm):
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput())
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        validate_password(password)
-        return password
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        password2 = cleaned_data.get('password2')
-        if password and password2 and password != password2:
-            self.add_error('password2', 'Пароли не совпадают')
-
-        return cleaned_data
-
-
-# class IncomeForm(forms.ModelForm):
-#     class Meta:
-#         model = Income
-#         fields = ['title', 'content']
-
+# транзакция пользователя
 class TransactionForm(forms.ModelForm):
     group = forms.ModelChoiceField(
-        queryset=UserGroup.objects.none(),  # Пусто по умолчанию, заполним в __init__
+        queryset=UserGroup.objects.none(),  # в __init__
         required=False,
         empty_label="Личная транзакция (без группы)"
     )
@@ -57,18 +27,21 @@ class TransactionForm(forms.ModelForm):
         self.fields['group'].queryset = UserGroup.objects.filter(members__user=user)
 
 
+# категории
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'icon', 'is_income']
+        fields = ['name']
 
 
+# группы пользователя
 class UserGroupForm(forms.ModelForm):
     class Meta:
         model = UserGroup
         fields = ['name']
 
 
+# приглашение в группы
 class InvitationForm(forms.Form):
     to_username = forms.CharField(label='Имя пользователя для приглашения', max_length=150)
 

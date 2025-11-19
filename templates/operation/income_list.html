@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Список доходов{% endblock %}
+
+{% block content %}
+    <h1>Список доходов</h1>
+    <p>Общая сумма: {{ total_income }}</p>
+    {% if incomes %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Тип</th>
+                <th>Сумма</th>
+                <th>Категория</th>
+                <th>Дата</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for income in incomes %}
+                <tr>
+                    <td>{{ income.t_type }}</td>
+                    <td>{{ income.amount }}</td>
+                    <td>{{ income.category.name }}</td>
+                    <td>{{ income.date }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Нет доходов.</p>
+    {% endif %}
+{% endblock %}
