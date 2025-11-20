@@ -54,7 +54,7 @@ class UserGroup(models.Model):
     def __str__(self):
         return self.name
 
-
+# управление членами групп
 class UserGroupMember(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     group = models.ForeignKey(UserGroup, on_delete=models.CASCADE, related_name='members')
@@ -63,12 +63,12 @@ class UserGroupMember(models.Model):
 
     class Meta:
         db_table = 'user_group_members'
-        unique_together = ['user', 'group']
+        unique_together = ['user', 'group'] # уникальность
 
-    def __str__(self):
+    def __str__(self): # админка
         return f"{self.user.username} in {self.group.name} ({self.role})"
 
-
+# приглашения, статусы, история
 class Invitation(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Ожидает'),

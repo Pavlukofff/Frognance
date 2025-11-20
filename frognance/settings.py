@@ -148,3 +148,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+# лого
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]

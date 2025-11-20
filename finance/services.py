@@ -21,11 +21,11 @@ def get_group_balance(user):
     expense = transactions.filter(t_type='expense').aggregate(total=Sum('amount'))['total'] or 0
     return transactions, income, expense, income - expense, member.group
 
-
+# Excel
 def export_transactions(user):
     wb = Workbook()
     ws_personal = wb.active
-    ws_personal.title = "Personal Transactions"
+    ws_personal.title = "Личные операции"
     headers = ['ID', 'Type', 'Amount', 'Category', 'Description', 'Date']
     ws_personal.append(headers)
 
@@ -41,9 +41,9 @@ def export_transactions(user):
         ]
         ws_personal.append(row)
 
-    member = UserGroupMember.objects.filter(user=user).first()
+    member = UserGroupMember.objects.filter(user=user).first() # проверка состояния в группе
     if member:
-        ws_group = wb.create_sheet(title="Group Transactions")
+        ws_group = wb.create_sheet(title="Операции группы")
         ws_group.append(headers)
 
         group_transactions = Transaction.objects.filter(group=member.group)
