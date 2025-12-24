@@ -6,13 +6,21 @@ from .forms import RegisterForm, ProfileForm
 from .services import create_user
 
 
-# домашняя
 def home(request):
+    """
+    Renders the home page.
+    """
     return render(request, 'home.html')
 
 
-# регистрация
 def register(request):
+    """
+    Handles user registration.
+
+    On GET, it displays the registration form.
+    On POST, it validates the form data, creates a new user, and redirects
+    to the login page upon successful registration.
+    """
     form = RegisterForm
 
     if request.method == 'POST':
@@ -29,9 +37,15 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
-# редактр профиля
 @login_required
 def edit_profile(request):
+    """
+    Handles profile editing for a logged-in user.
+
+    On GET, it displays the profile form pre-filled with the user's data.
+    On POST, it validates and saves the updated profile information,
+    including the avatar image.
+    """
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():

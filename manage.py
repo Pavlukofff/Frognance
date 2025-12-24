@@ -5,7 +5,13 @@ import sys
 
 
 def main():
-    """Run administrative tasks."""
+    """
+    Run administrative tasks.
+
+    This function sets the default Django settings module and executes
+    the command-line utility. It raises an ImportError if Django is not
+    installed or available.
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'frognance.settings')
     try:
         from django.core.management import execute_from_command_line

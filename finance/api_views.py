@@ -1,18 +1,22 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .models import Transaction
 from .serializers import TransactionSerializer
-from django.db.models import Sum
 
 
-class IncomeListAPI(APIView):
+class IncomeListAPI(generics.ListAPIView):
+    """
+    API view to list all income transactions for the authenticated user.
+
+    Provides a paginated list of income transactions, ordered by date.
+    """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_class = TransactionSerializer
 
-    def get(self, request):
-        incomes = Transaction.objects.filter(user=request.user, t_type='income').order_by('-date')
-        total_income = incomes.aggregate(total=Sum('amount'))['total'] or 0
-        serializer = TransactionSerializer(incomes, many=True)
-        return Response({'incomes': serializer.data, 'total_income': total_income})
+    def get_queryset(self):
+        """
+        Return a queryset of income transactions filtered by the current user.
+        """
+        return Transaction.objects.filter(user=self.request.user, t_type='income').order_by('-date')
