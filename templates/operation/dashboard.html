@@ -1,67 +1,100 @@
-{% extends 'base.html' %}
+{% extends "finance/finance_base.html" %}
 {% load crispy_forms_tags %}
 
-{% block content %}
-    <h1>Отчеты</h1>
-    <h2>Личный счёт (обычный)</h2>
-    <p>Доходы: {{ personal_income }}</p>
-    <p>Расходы: {{ personal_expense }}</p>
-    <p>Баланс: {{ personal_balance }}</p>
+{% block title %}Dashboard{% endblock title %}
 
-    <a href="{% url 'add_transaction' %}">Добавить</a>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Дата</th>
-            <th>Тип</th>
-            <th>Сумма</th>
-            <th>Категория</th>
-            <th>Описание</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for transaction in personal_transactions %}
-            <tr>
-                <td>{{ transaction.date }}</td>
-                <td>{{ transaction.t_type }}</td>
-                <td>{{ transaction.amount }}</td>
-                <td>{{ transaction.category.name|default:'' }}</td>
-                <td>{{ transaction.description }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <a href="{% url 'export_operation' %}" class="btn btn-primary">Скачать отчёт в Excel</a>
-    {% if group %}
-        <h2>Групповой счёт ({{ group.name }})</h2>
-        <p>Доходы: {{ group_income }}</p>
-        <p>Расходы: {{ group_expense }}</p>
-        <p>Баланс: {{ group_balance }}</p>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Тип</th>
-                <th>Сумма</th>
-                <th>Категория</th>
-                <th>Описание</th>
-                <th>Пользователь</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for transaction in group_transactions %}
-                <tr>
-                    <td>{{ transaction.date }}</td>
-                    <td>{{ transaction.t_type }}</td>
-                    <td>{{ transaction.amount }}</td>
-                    <td>{{ transaction.category.name|default:'' }}</td>
-                    <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.user.username }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Вы не в группе — групповой счёт недоступен. <a href="{% url 'create_group' %}">Создать группу</a></p>
-    {% endif %}
-{% endblock %}
+{% block finance_main_content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Personal Transactions -->
+            <div class="mb-4">
+                <h2>Personal Transactions</h2>
+                <form method="get" class="row g-3 align-items-center mb-3">
+                    <div class="col-auto">{{ filter_form.category|as_crispy_field }}</div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Clear</a>
+                    </div>
+                </form>
+                <p>Total Income: {{ personal_income }} | Total Expense: {{ personal_expense }} | <strong>Balance: {{ personal_balance }}</strong></p>
+                <div class="table-responsive small">
+                    <table class="table table-striped table-sm">
+                        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Category</th></tr></thead>
+                        <tbody>
+                            {% for transaction in personal_transactions %}
+                            <tr><td>{{ transaction.date|date:"Y-m-d" }}</td><td>{{ transaction.get_t_type_display }}</td><td>{{ transaction.amount }}</td><td>{{ transaction.category.name|default:"-" }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center">No transactions found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Group Transactions -->
+            {% if group %}
+            <div class="mt-5">
+                <h2>Group: {{ group.name }}</h2>
+                <p>Total Income: {{ group_income }} | Total Expense: {{ group_expense }} | <strong>Balance: {{ group_balance }}</strong></p>
+                <div class="table-responsive small">
+                    <table class="table table-striped table-sm">
+                        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Category</th><th>User</th></tr></thead>
+                        <tbody>
+                            {% for transaction in group_transactions %}
+                            <tr><td>{{ transaction.date|date:"Y-m-d" }}</td><td>{{ transaction.get_t_type_display }}</td><td>{{ transaction.amount }}</td><td>{{ transaction.category.name|default:"-" }}</td><td>{{ transaction.user.username }}</td></tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center">No group transactions found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-4">
+            <h2>Expenses by Category</h2>
+            {% if chart_data != '[]' %}
+                <canvas id="expenseChart"></canvas>
+            {% else %}
+                <div class="alert alert-info">Add some expenses to see a chart.</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock finance_main_content %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        new TomSelect("#id_category", { create: false, sortField: { field: "text", direction: "asc" } });
+
+        {% if chart_data != '[]' %}
+        const ctx = document.getElementById('expenseChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ chart_labels|safe }},
+                    datasets: [{
+                        label: 'Expenses',
+                        data: {{ chart_data|safe }},
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+        {% endif %}
+    });
+</script>
+{% endblock page_scripts %}

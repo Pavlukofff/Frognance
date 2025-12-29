@@ -3,36 +3,34 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .forms import RegisterForm, ProfileForm
-from .services import create_user
 
 
 def home(request):
     """
-    Renders the home page.
+    Renders the home page for anonymous users or redirects authenticated
+    users to their dashboard.
     """
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'home.html')
 
 
 def register(request):
     """
-    Handles user registration.
+    Handles user registration using a UserCreationForm.
 
     On GET, it displays the registration form.
-    On POST, it validates the form data, creates a new user, and redirects
-    to the login page upon successful registration.
+    On POST, it validates the form data. If valid, it saves the new user
+    and redirects to the login page. If invalid, it re-renders the form
+    with validation errors.
     """
-    form = RegisterForm
-
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
-
-            create_user(username=username, email=email, password=password)
-
+            form.save()  # This handles user creation and password hashing
             return redirect(reverse('login'))
+    else:
+        form = RegisterForm()
 
     return render(request, 'registration/register.html', {'form': form})
 

@@ -1,12 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'finance/finance_base.html' %}
 {% load crispy_forms_tags %}
 
-{% block content %}
-    <h2>Добавить категорию</h2>
+{% block title %}Add New Category{% endblock %}
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Создать</button>
-    </form>
+{% block finance_main_content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add New Category</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title text-center">Category Details</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Save Category</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'add_transaction' %}" class="btn btn-secondary">Back to Add Transaction</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

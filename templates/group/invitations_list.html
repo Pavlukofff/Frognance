@@ -1,17 +1,32 @@
-{% extends 'base.html' %}
-{% block title %}Мои приглашения{% endblock %}
-{% block content %}
-    <h1>Мои приглашения</h1>
+{% extends 'finance/finance_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Invitations{% endblock %}
+
+{% block finance_main_content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">My Invitations</h1>
+</div>
+
     {% if invitations %}
-        <ul>
+        <div class="list-group">
             {% for inv in invitations %}
-                <li>Приглашение от {{ inv.from_user }} в {{ inv.group.name }} ({{ inv.created_at }})
-                    <a href="{% url 'accept_invitation' inv.id %}">Принять</a>
-                    <a href="{% url 'reject_invitation' inv.id %}">Отклонить</a>
-                </li>
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Invitation to join {{ inv.group.name }}</h5>
+                        <small class="text-muted">{{ inv.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <p class="mb-1">From: {{ inv.from_user.username }}</p>
+                    <div class="d-flex justify-content-end mt-2">
+                        <a href="{% url 'accept_invitation' inv.id %}" class="btn btn-success btn-sm me-2">Accept</a>
+                        <a href="{% url 'reject_invitation' inv.id %}" class="btn btn-danger btn-sm">Reject</a>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>Нет приглашений.</p>
+        <div class="alert alert-info" role="alert">
+            You have no pending invitations at the moment.
+        </div>
     {% endif %}
 {% endblock %}

@@ -5,9 +5,13 @@ Frognance is a web application for personal and group finance management, built 
 ## Key Features
 
 - **User Authentication**: Secure registration and login system with profile editing capabilities.
-- **Transaction Management**: Add, view, and categorize income and expense transactions.
+- **Transaction Management**: Add, view, and categorize income and expense transactions with a powerful search-as-you-type category selector.
 - **Group Budgeting**: Create and manage groups for shared finances, including a role-based member system (admin, member) and an invitation system.
-- **Personal & Group Dashboards**: Separate overviews for personal and group financial activities.
+- **Insightful Dashboard**: A central dashboard with:
+    - Visual charts for expense analysis by category.
+    - Transaction lists with filtering capabilities.
+    - Summaries for personal and group balances.
+- **Smart Category System**: Comes with a comprehensive set of default categories, with the ability for users to add their own.
 - **Data Export**: Export financial transactions to an Excel file.
 - **REST API**: A simple API endpoint to fetch user income data with token-based authentication.
 
@@ -15,7 +19,12 @@ Frognance is a web application for personal and group finance management, built 
 
 - **Backend**: Python, Django, Django REST Framework
 - **Database**: PostgreSQL
-- **Frontend**: HTML, CSS, Bootstrap 5 (via `django-crispy-forms`)
+- **Frontend**: HTML, CSS, Bootstrap 5
+- **JavaScript Libraries**:
+    - `Chart.js` for data visualization.
+    - `Tom Select` for interactive select boxes.
+    - `Feather Icons` for a clean icon set.
+- **Forms**: `django-crispy-forms` with `crispy-bootstrap5`
 - **Other Libraries**: `openpyxl` (for Excel export), `psycopg2-binary` (for PostgreSQL connection).
 
 ## Getting Started
@@ -60,6 +69,7 @@ Frognance is a web application for personal and group finance management, built 
     ```
 
 5.  **Apply database migrations:**
+    This will set up the database schema and populate it with default categories.
     ```bash
     python manage.py migrate
     ```
@@ -77,14 +87,14 @@ Frognance is a web application for personal and group finance management, built 
 
 ## Development Setup
 
-This project uses `pre-commit` to automate dependency management and ensure code quality.
+This project uses `pip-tools` and `pre-commit` to manage and automate Python dependencies.
 
 ### Initial Setup
 
 1.  **Install development tools:**
     After activating your virtual environment, install the necessary tools:
     ```bash
-    pip install pre-commit
+    pip install pip-tools pre-commit
     ```
 
 2.  **Activate pre-commit hooks:**

@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: pip-compile
+        name: pip-compile
+        entry: bash -c 'pip-compile requirements.in && git add requirements.txt'
+        language: system
+        files: ^requirements\.in$
+        stages: [commit]

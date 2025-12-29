@@ -1,37 +1,31 @@
 from django import forms
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 
-# регистрация
-class RegisterForm(forms.ModelForm):
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput())
+class RegisterForm(UserCreationForm):
+    """
+    A form for user registration that extends Django's UserCreationForm.
 
-    class Meta:
+    Includes fields for username, email, and password with confirmation.
+    The email field is made required.
+    """
+    email = forms.EmailField(
+        label="Email",
+        help_text="Required. A valid email address.",
+    )
+
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['username', 'email', 'password']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        validate_password(password)
-        return password
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        password2 = cleaned_data.get('password2')
-        if password and password2 and password != password2:
-            self.add_error('password2', 'Пароли не совпадают')
-
-        return cleaned_data
+        fields = ('username', 'email')
 
 
 class ProfileForm(forms.ModelForm):
+    """
+    A form for editing a user's profile information.
+    """
     class Meta:
         model = User
-        fields = ['phone', 'avatar']  # поля для редактирования
+        fields = ['phone', 'avatar']

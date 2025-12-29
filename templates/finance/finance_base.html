@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    .sidebar .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem; /* Space between icon and text */
+    }
+    .sidebar .nav-link svg {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.125em;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">
+                            <span data-feather="home"></span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'add_transaction' %}">
+                            <span data-feather="file-plus"></span>
+                            Add Transaction
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'group_list' %}">
+                            <span data-feather="users"></span>
+                            Groups
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'invitations_list' %}">
+                            <span data-feather="mail"></span>
+                            Invitations
+                        </a>
+                    </li>
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Account</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'edit_profile' %}">
+                            <span data-feather="settings"></span>
+                            Profile Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                         <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link border-0 bg-transparent"><span data-feather="log-out"></span> Sign out</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area for Finance Module -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% block finance_main_content %}
+            {% endblock finance_main_content %}
+        </main>
+    </div>
+</div>
+{% endblock content %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace(); // Activate Feather Icons
+</script>
+{% endblock page_scripts %}

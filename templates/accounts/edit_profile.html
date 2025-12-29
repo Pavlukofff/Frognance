@@ -1,15 +1,40 @@
-{% extends 'base.html' %}
+{% extends 'finance/finance_base.html' %}
+{% load crispy_forms_tags %}
 
-{% block title %}Редактировать профиль{% endblock %}
+{% block title %}Edit Profile{% endblock %}
 
-{% block content %}
-    <h1>Редактировать профиль</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Сохранить</button>
-    </form>
-    {% if request.user.avatar %}
-        <img src="{{ request.user.avatar.url }}" alt="Avatar" style="width: 100px; height: 100px;">
-    {% endif %}
+{% block finance_main_content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit Your Profile</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title text-center">Profile Details</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {# Display current avatar if exists #}
+                    {% if request.user.avatar %}
+                        <div class="mb-3 text-center">
+                            <label class="form-label">Current Avatar:</label><br>
+                            <img src="{{ request.user.avatar.url }}" alt="Current Avatar" class="img-thumbnail rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+
+                    {{ form|crispy }}
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Save Changes</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

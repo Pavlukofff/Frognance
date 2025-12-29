@@ -10,14 +10,15 @@ class Category(models.Model):
     """
     Represents a category for financial transactions.
 
-    A category can be personal to a user or shared within a group. It can
-    also be marked as an income category.
+    A category can be personal to a user (user is not null) or global/base
+    (user is null).
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='categories'
-
+        related_name='categories',
+        null=True,  # Allows for global categories
+        blank=True
     )
     group = models.ForeignKey('UserGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='categories')
     name = models.CharField(max_length=100)

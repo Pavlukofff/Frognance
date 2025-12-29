@@ -1,52 +1,46 @@
 {% load static %}
-<div class="container">
-    <header class="d-flex justify-content-center py-3">
-        <a href="/" class="me-3">
-            <img src="{% static 'logo.svg' %}" alt="Frognance Logo" style="width: 100px; height: auto;">
-        </a>
-        <ul class="nav nav-pills">
-            <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
-            {% if not user.is_authenticated %}
-                <li class="nav-item"><a href="{% url "register" %}" class="nav-link">Register</a></li>
-                <li class="nav-item"><a href="{% url "login" %}" class="nav-link">Login</a></li>
-            {% else %}
-                <li class="nav-item , nav-link">
-                    Hi {{ user.username }}
-                    {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}" alt="Avatar"
-                             style="width: 30px; height: 30px; border-radius: 50%;">
-                    {% endif %}
-                </li>
-                <li>
-                    <form action="{% url "logout" %}" method="post">
-                        {% csrf_token %}
-                        <input type="submit" value="logout" class="nav-link">
-                    </form>
-                </li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link">Все операции</a></li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'add_transaction' %}" class="nav-link">Добавить Доход|Расход</a>
-                </li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'add_category' %}" class="nav-link">Новая категория</a></li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'create_group' %}" class="nav-link">Создать группу</a></li>
-            {% endif %}
-            <li class="nav-item"><a href="{% url 'group_list' %}" class="nav-link">Мои группы</a></li>
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'invitations_list' %}" class="nav-link">Мои приглашения</a></li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'edit_profile' %}" class="nav-link">Профиль</a></li>
-            {% endif %}
-            {% if user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'income_list' %}" class="nav-link">Список доходов</a></li>
-            {% endif %}
-        </ul>
-    </header>
-</div>
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+                <img src="{% static 'logo.svg' %}" alt="Frognance Logo" width="100" height="auto" class="me-2">
+                <span class="fs-4">Frognance</span>
+            </a>
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                {% if not user.is_authenticated %}
+                    <li><a href="{% url 'home' %}" class="nav-link px-2 link-secondary">Home</a></li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}" class="nav-link px-2 link-dark">Dashboard</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="text-end">
+                {% if user.is_authenticated %}
+                    <div class="dropdown text-end">
+                        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="User Avatar" width="32" height="32" class="rounded-circle me-2">
+                            {% endif %}
+                            Hi, {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Profile Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Sign out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Sign-up</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

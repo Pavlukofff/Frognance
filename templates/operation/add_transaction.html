@@ -1,11 +1,76 @@
-{% extends 'base.html' %}
+{% extends 'finance/finance_base.html' %}
 {% load crispy_forms_tags %}
 
-{% block content %}
-    <h2>Добавить доход/расход</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Сохранить</button>
-    </form>
-{% endblock %}
+{% block title %}Add Transaction{% endblock %}
+
+{% block finance_main_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add a New Transaction</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title text-center">Transaction Details</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {{ form.t_type|as_crispy_field }}
+                    {{ form.amount|as_crispy_field }}
+
+                    <div class="mb-3">
+                        <label for="id_category" class="form-label">Category</label>
+                        {{ form.category }}
+                        <div class="text-end mt-1">
+                            <a href="{% url 'add_category' %}" class="btn btn-sm btn-outline-primary">+ New Category</a>
+                        </div>
+                    </div>
+
+                    {{ form.description|as_crispy_field }}
+                    {{ form.group|as_crispy_field }}
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Save Transaction</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock finance_main_content %}
+
+{% block page_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const transactionTypeSelect = document.getElementById('id_t_type');
+    const categorySelect = document.getElementById('id_category');
+
+    const tom = new TomSelect(categorySelect, {
+        create: false,
+        sortField: { field: "text", direction: "asc" }
+    });
+
+    const allCategories = JSON.parse('{{ categories_json|safe }}');
+
+    function updateCategoryOptions() {
+        const selectedType = transactionTypeSelect.value;
+        const isIncome = selectedType === 'income';
+        const currentValue = tom.getValue();
+
+        tom.clear();
+        tom.clearOptions();
+
+        for (const [pk, data] of Object.entries(allCategories)) {
+            if (data.is_income === isIncome) {
+                tom.addOption({value: pk, text: data.name});
+            }
+        }
+        tom.setValue(currentValue);
+    }
+
+    transactionTypeSelect.addEventListener('change', updateCategoryOptions);
+    updateCategoryOptions();
+});
+</script>
+{% endblock page_scripts %}

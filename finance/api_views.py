@@ -8,8 +8,6 @@ from .serializers import TransactionSerializer
 class IncomeListAPI(generics.ListAPIView):
     """
     API view to list all income transactions for the authenticated user.
-
-    Provides a paginated list of income transactions, ordered by date.
     """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

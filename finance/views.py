@@ -1,41 +1,72 @@
+import json
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Q
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Sum
 
-from finance.forms import TransactionForm, CategoryForm, UserGroupForm, InvitationForm, User
-from finance.models import Transaction, UserGroupMember, UserGroup, Invitation
+from finance.forms import TransactionForm, CategoryForm, UserGroupForm, InvitationForm, User, TransactionFilterForm
+from finance.models import Transaction, UserGroupMember, UserGroup, Invitation, Category
 from finance.services import create_group_and_add_admin, export_transactions, get_personal_balance, get_group_balance, \
     join_group as join_group_service, leave_group as leave_group_service
 
 
 def home(request):
     """
-    Renders the home page.
+    Renders the home page or redirects to dashboard if logged in.
     """
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'home.html')
 
 
 @login_required
 def dashboard(request):
     """
-    Displays the main dashboard for the logged-in user.
-
-    It shows a summary of personal and group transactions, including total
-    income, expenses, and the current balance.
+    Displays the main dashboard, handles transaction filtering, and prepares chart data.
     """
-    personal_transactions, personal_income, personal_expense, personal_balance = get_personal_balance(request.user)
-    group_transactions, group_income, group_expense, group_balance, group = get_group_balance(request.user)
+    # 1. Get all base data (unfiltered)
+    personal_transactions_all, personal_income, personal_expense, personal_balance = get_personal_balance(request.user)
+    group_transactions_all, group_income, group_expense, group_balance, group = get_group_balance(request.user)
+
+    # 2. Handle filtering form
+    filter_form = TransactionFilterForm(request.GET or None, user=request.user)
+    personal_transactions_filtered = personal_transactions_all
+    group_transactions_filtered = group_transactions_all
+
+    if filter_form.is_valid():
+        selected_category = filter_form.cleaned_data.get('category')
+        if selected_category:
+            personal_transactions_filtered = personal_transactions_all.filter(category=selected_category)
+            if group_transactions_filtered:
+                group_transactions_filtered = group_transactions_all.filter(category=selected_category)
+
+    # 3. Prepare chart data (always unfiltered)
+    expense_by_category = (
+        Transaction.objects.filter(user=request.user, t_type='expense', group=None)
+        .values('category__name')
+        .annotate(total=Sum('amount'))
+        .order_by('-total')
+    )
+    chart_labels = [item['category__name'] or 'Uncategorized' for item in expense_by_category]
+    chart_data = [float(item['total']) for item in expense_by_category]
+
     context = {
-        'personal_transactions': personal_transactions,
+        # Base data (unfiltered totals)
         'personal_income': personal_income,
         'personal_expense': personal_expense,
         'personal_balance': personal_balance,
-        'group_transactions': group_transactions,
         'group_income': group_income,
         'group_expense': group_expense,
         'group_balance': group_balance,
-        'group': group
+        'group': group,
+        # Filtered transaction lists
+        'personal_transactions': personal_transactions_filtered,
+        'group_transactions': group_transactions_filtered,
+        # Chart data
+        'chart_labels': json.dumps(chart_labels),
+        'chart_data': json.dumps(chart_data),
+        # Form
+        'filter_form': filter_form,
     }
     return render(request, 'operation/dashboard.html', context)
 
@@ -44,10 +75,14 @@ def dashboard(request):
 def add_transaction(request):
     """
     Handles the creation of a new financial transaction.
-
-    On POST, it validates the form and creates a new transaction associated
-    with the user and optionally a group.
     """
+    user_categories = Category.objects.filter(Q(user=request.user) | Q(user=None))
+    
+    categories_json = json.dumps({
+        cat.pk: {'name': cat.name, 'is_income': cat.is_income}
+        for cat in user_categories
+    })
+
     if request.method == 'POST':
         form = TransactionForm(request.POST, user=request.user)
         if form.is_valid():
@@ -59,7 +94,11 @@ def add_transaction(request):
     else:
         form = TransactionForm(user=request.user)
 
-    return render(request, 'operation/add_transaction.html', {'form': form})
+    context = {
+        'form': form,
+        'categories_json': categories_json,
+    }
+    return render(request, 'operation/add_transaction.html', context)
 
 
 @login_required
@@ -82,7 +121,7 @@ def add_category(request):
             category = form.save(commit=False)
             category.user = request.user
             category.save()
-            return redirect('dashboard')
+            return redirect('add_transaction') # Redirect to transaction page to see the new category
     else:
         form = CategoryForm()
 
@@ -93,7 +132,10 @@ def add_category(request):
 def export_operation_to_excel(request):
     """
     Triggers the export of the user's transactions to an Excel file.
+    (Placeholder function)
     """
+    # This function is currently a placeholder.
+    # The actual export logic is in finance.services.export_transactions
     return export_transactions(request.user)
 
 
@@ -101,8 +143,6 @@ def export_operation_to_excel(request):
 def create_group(request):
     """
     Handles the creation of a new user group.
-
-    On POST, it creates the group and automatically adds the creator as an admin.
     """
     if request.method == 'POST':
         form = UserGroupForm(request.POST)
@@ -152,7 +192,6 @@ def invite_to_group(request, group_id):
     Allows a group admin to invite another user to the group.
     """
     group = get_object_or_404(UserGroup, id=group_id)
-    # Check if the current user is an admin of the group
     if not UserGroupMember.objects.filter(user=request.user, group=group, role='admin').exists():
         return HttpResponseForbidden("Only admins can invite users.")
 
@@ -211,11 +250,8 @@ def reject_invitation(request, invitation_id):
 def group_members(request, group_id):
     """
     Displays the list of members for a specific group.
-
-    Allows group admins to remove members from the group.
     """
     group = get_object_or_404(UserGroup, id=group_id)
-    # Check if the user is a member of the group
     if not UserGroupMember.objects.filter(user=request.user, group=group).exists():
         return HttpResponseForbidden("You do not have access to this group.")
 
